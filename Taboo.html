@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Random Taboo Card Game</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f2f2f9;
+      padding: 30px;
+      text-align: center;
+    }
+    #card {
+      margin: 20px auto;
+      padding: 25px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.13);
+      max-width: 400px;
+      min-height: 120px;
+      font-size: 1.1em;
+    }
+    .target {
+      font-weight: bold;
+      color: #0056b3;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+    .taboo {
+      color: #d0002c;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    ul { 
+      list-style: none; 
+      padding: 0; 
+      margin: 0;
+    }
+    li {
+      display: inline-block;
+      background: #fde5ec;
+      color: #70002c;
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin: 2px 4px;
+      font-size: 0.98em;
+    }
+    button {
+      padding: 12px 28px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background: #0056b3;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    button:hover {
+      background: #003c80;
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Taboo Card</h1>
+  <div id="card">
+    <p>Click the button to get a Taboo card!</p>
+  </div>
+  <button onclick="showCard()">Show Card</button>
+  
+  <script>
+    const tabooCards = [
+      // 1-10: Math/General
+      { target: "Integer", taboo: ["Whole", "Positive", "Negative", "Number", "Zero"] },
+      { target: "Probability", taboo: ["Chance", "Likelihood", "Event", "Fraction", "Percent"] },
+      { target: "Ratio", taboo: ["Compare", "Fraction", "Divide", "Proportion", "Relationship"] },
+      { target: "Equation", taboo: ["Equals", "Solve", "Algebra", "Variable", "Expression"] },
+      { target: "Area", taboo: ["Space", "Inside", "Square Units", "Measure", "Perimeter"] },
+      { target: "Mean", taboo: ["Average", "Sum", "Numbers", "Divide", "Median"] },
+      { target: "Inequality", taboo: ["Greater", "Less", "Equation", "Symbol", "Compare"] },
+      { target: "Coordinate Plane", taboo: ["Graph", "X-axis", "Y-axis", "Points", "Grid"] },
+      { target: "Triangle", taboo: ["Shape", "Three", "Sides", "Angles", "Polygon"] },
+      { target: "Decimal", taboo: ["Point", "Fraction", "Number", "Tenths", "Hundredths"] },
+
+      // 11-20: Common math terms
+      { target: "Addition", taboo: ["Plus", "Sum", "Increase", "Total", "Add"] },
+      { target: "Subtraction", taboo: ["Minus", "Take away", "Difference", "Deduct", "Less"] },
+      { target: "Multiplication", taboo: ["Times", "Product", "Multiply", "Repeated addition", "Groups"] },
+      { target: "Division", taboo: ["Split", "Quotient", "Divide", "Equal parts", "Share"] },
+      { target: "Fraction", taboo: ["Part", "Numerator", "Denominator", "Half", "Quarter"] },
+      { target: "Percent", taboo: ["Hundred", "Fraction", "Decimal", "Rate", "Out of"] },
+      { target: "Variable", taboo: ["Letter", "Placeholder", "Value", "Symbol", "Unknown"] },
+      { target: "Expression", taboo: ["Equation", "Number", "Variable", "Algebra", "Operation"] },
+      { target: "Prime Number", taboo: ["Only two", "Divisible", "One", "Itself", "Composite"] },
+      { target: "Square Root", taboo: ["Root", "Multiply", "Number", "Two", "Radical"] },
+
+      // 21-30: Powers, units
+      { target: "Exponent", taboo: ["Power", "Superscript", "Multiply", "Times", "Raised"] },
+      { target: "Root", taboo: ["Square", "Cube", "Radical", "Number", "Solution"] },
+      { target: "Squared", taboo: ["Two", "Power", "Multiply", "Exponent", "Area"] },
+      { target: "Cubed", taboo: ["Three", "Volume", "Power", "Exponent", "Multiply"] },
+      { target: "Unit", taboo: ["Measurement", "Single", "Standard", "Meter", "Gram"] },
+      { target: "Meter", taboo: ["Length", "Measure", "Centimeter", "Kilometer", "Distance"] },
+      { target: "Kilogram", taboo: ["Weight", "Gram", "Mass", "Measure", "Pounds"] },
+      { target: "Degree", taboo: ["Angle", "Celsius", "Temperature", "Measure", "Fahrenheit"] },
+      { target: "Liter", taboo: ["Liquid", "Volume", "Milliliter", "Measure", "Container"] },
+      { target: "Inch", taboo: ["Foot", "Centimeter", "Length", "Measure", "Twelve"] },
+
+      // 31-40: SAE/customary units
+      { target: "Foot", taboo: ["Twelve", "Inch", "Yard", "Measure", "Length"] },
+      { target: "Mile", taboo: ["Long", "Road", "Distance", "Feet", "Travel"] },
+      { target: "Yard", taboo: ["Three", "Feet", "Length", "Measure", "Inch"] },
+      { target: "Gallon", taboo: ["Liquid", "Quart", "Four", "Volume", "Milk"] },
+      { target: "Quart", taboo: ["Gallon", "Pint", "Two", "Liquid", "Volume"] },
+      { target: "Ounce", taboo: ["Weight", "Pound", "Measure", "Sixteen", "Fluid"] },
+      { target: "Pound", taboo: ["Ounce", "Sixteen", "Weight", "Measure", "Heavier"] },
+      { target: "Pint", taboo: ["Quart", "Gallon", "Volume", "Two", "Liquid"] },
+      { target: "Fahrenheit", taboo: ["Temperature", "Degree", "Hot", "Cold", "Celsius"] },
+      { target: "Cup", taboo: ["Pint", "Fluid", "Liquid", "Eight", "Measure"] },
+
+      // 41-60: Fun/pop culture & slang
+      { target: "Taylor Swift", taboo: ["Singer", "Eras", "Concert", "Music", "Album"] },
+      { target: "Fortnite", taboo: ["Game", "Battle Royale", "Skins", "PlayStation", "Victory"] },
+      { target: "Wednesday Addams", taboo: ["Netflix", "Dance", "Family", "Goth", "Braids"] },
+      { target: "SpongeBob SquarePants", taboo: ["Cartoon", "Bikini Bottom", "Patrick", "Pineapple", "Krabby Patty"] },
+      { target: "Bluey", taboo: ["Cartoon", "Dog", "Bandit", "Bingo", "Australia"] },
+      { target: "AI (Artificial Intelligence)", taboo: ["Robot", "Chat", "Smart", "Computer", "Technology"] },
+      { target: "TikTok", taboo: ["Video", "App", "Scroll", "Social", "Trend"] },
+      { target: "Meme", taboo: ["Picture", "Joke", "Viral", "Funny", "Internet"] },
+      { target: "MrBeast", taboo: ["YouTube", "Challenge", "Money", "Philanthropy", "Videos"] },
+      { target: "Spider-Man", taboo: ["Marvel", "Superhero", "Web", "Peter", "Miles"] },
+      { target: "Among Us", taboo: ["Game", "Impostor", "Crewmate", "Space", "Suss"] },
+      { target: "Billie Eilish", taboo: ["Singer", "Green Hair", "Music", "Bad Guy", "Grammy"] },
+      { target: "Minecraft", taboo: ["Game", "Block", "Creeper", "Build", "Survival"] },
+      { target: "Encanto", taboo: ["Movie", "Disney", "Family", "Magic", "Bruno"] },
+      { target: "Mario", taboo: ["Nintendo", "Plumber", "Luigi", "Princess", "Jump"] },
+      { target: "Doja Cat", taboo: ["Singer", "Rapper", "Paint the Town Red", "Music", "Viral"] },
+      { target: "Lofi", taboo: ["Chill", "Study", "Music", "Beats", "Relax"] },
+      { target: "Olivia Rodrigo", taboo: ["Singer", "Drivers License", "Pop", "Hit", "Sour"] },
+      { target: "Stanley Cup", taboo: ["Drink", "Metal", "Carry", "Hydrate", "Trend"] },
+      { target: "Slay", taboo: ["Win", "Awesome", "Lit", "Work", "Queen"] }
+    ];
+
+    function showCard() {
+      const n = Math.floor(Math.random() * tabooCards.length);
+      const card = tabooCards[n];
+      document.getElementById('card').innerHTML = `
+        <div class="target">Target Word: ${card.target}</div>
+        <div class="taboo">Taboo Words:</div>
+        <ul>${card.taboo.map(word => `<li>${word}</li>`).join("")}</ul>
+      `;
+    }
+  </script>
+</body>
+</html>
