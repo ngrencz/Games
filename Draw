@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop Culture Pictionary Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+        h1 {
+            color: #4a5568;
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+        .card {
+            background-color: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .category {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a0aec0;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .topic {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        button {
+            background-color: #4c51bf;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.1s ease, background-color 0.2s ease;
+            box-shadow: 0 4px 6px rgba(76, 81, 191, 0.2);
+        }
+        button:hover {
+            background-color: #434190;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎬 Pictionary Generator</h1>
+        <div class="card">
+            <div id="category-display" class="category">Press the button to start</div>
+            <div id="topic-display" class="topic">Ready?</div>
+        </div>
+        <button onclick="generatePrompt()">Next Prompt</button>
+    </div>
+
+    <script>
+        // Dictionary of categories and 100+ topics
+        const data = {
+            "🎮 Video Games": [
+                "Among Us Crewmate", "Minecraft Steve", "Pac-Man", "Nintendo Switch", "Fortnite Battle Bus",
+                "Pikachu", "Roblox Avatar", "Link (Zelda)", "Super Mario", "Luigi",
+                "Sonic the Hedgehog", "Tetris Blocks", "Donkey Kong", "Bowser", "Master Chief",
+                "Charizard", "Animal Crossing Villager", "Kirby", "Minecraft Creeper", "Enderman",
+                "Pokéball", "PlayStation Controller", "Xbox Console", "Spyro the Dragon", "Yoshi",
+                "Sans (Undertale)"
+            ],
+            "🎬 Movies & Shows": [
+                "SpongeBob SquarePants", "Spider-Man", "Shrek", "Darth Vader", "Minion",
+                "Stitch", "Baby Yoda (Grogu)", "Iron Man", "Batman", "Elsa (Frozen)",
+                "Buzz Lightyear", "Woody (Toy Story)", "Scooby-Doo", "Harry Potter", "Wednesday Addams",
+                "Patrick Star", "Mickey Mouse", "Bugs Bunny", "Homer Simpson", "Demogorgon (Stranger Things)",
+                "Outer Banks", "Lightning McQueen", "Toothless (How to Train Your Dragon)", "Captain America", "The Hulk"
+            ],
+            "🎵 Pop Culture & Internet": [
+                "Duolingo Owl", "Stanley Cup", "AirPods", "TikTok Logo", "Gaming Headphones",
+                "Hydroflask", "iPhone", "YouTube Play Button", "Instagram Logo", "Crying Laughing Emoji",
+                "Skull Emoji", "Rick Roll", "Flossing Dance", "The Dab", "VSCO Girl",
+                "Grumpy Cat", "Doge (Shiba Inu)", "Crocs", "Pop It Fidget Toy", "Skateboard",
+                "Hoverboard", "Apple Watch", "Beats Headphones", "Anime Eyes", "MrBeast Logo"
+            ],
+            "🍔 Snacks & Brands": [
+                "Boba Tea", "Box of McDonald's Fries", "Nike Swoosh", "Slice of Pepperoni Pizza", "Taco Truck",
+                "Bag of Takis", "Flamin' Hot Cheetos", "Starbucks Frappuccino", "Oreo Cookie", "Gatorade Bottle",
+                "Pringles Can", "Nutella Jar", "Sour Patch Kids", "Skittles", "Doritos Bag",
+                "M&M Character", "Hershey Chocolate Bar", "Coca-Cola Can", "Pop-Tart", "Cup Noodles",
+                "Dunkin' Donut", "Jelly Belly", "KitKat Bar", "7-Eleven Slurpee", "Gummy Bear"
+            ]
+        };
+
+        function generatePrompt() {
+            // Get all category names
+            const categories = Object.keys(data);
+            
+            // Pick a random category
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            
+            // Pick a random topic from that category
+            const topics = data[randomCategory];
+            const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+            
+            // Update the HTML text
+            document.getElementById('category-display').innerText = randomCategory;
+            document.getElementById('topic-display').innerText = randomTopic;
+        }
+    </script>
+</body>
+</html>
