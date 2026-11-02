@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>2-Player Hackable Pong</title>
+    <style>
+        body { background: black; text-align: center; color: lime; font-family: "Courier New", Courier, monospace; }
+        canvas { background: black; border: 2px solid lime; margin-top: 20px; }
+        p { font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>2-Player Pong (Press F12 to Hack)</h1>
+    <p>Player 1: W & S keys | Player 2: Up & Down arrows</p>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("pongCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // --- STUDENTS CAN MODIFY THESE VARIABLES IN THE F12 CONSOLE ---
+        var paddleHeight = 80;
+        var paddleWidth = 10;
+        var ballRadius = 8;
+        var ballSpeedX = 5;
+        var ballSpeedY = 5;
+        var paddleSpeed = 6;
+        
+        var p1Y = (canvas.height - paddleHeight) / 2;
+        var p2Y = (canvas.height - paddleHeight) / 2;
+        var ballX = canvas.width / 2;
+        var ballY = canvas.height / 2;
+        var p1Score = 0;
+        var p2Score = 0;
+
+        // Keyboard tracking
+        var wPressed = false, sPressed = false, upPressed = false, downPressed = false;
+
+        document.addEventListener('keydown', function(e) {
+            if(e.key === 'w' || e.key === 'W') wPressed = true;
+            if(e.key === 's' || e.key === 'S') sPressed = true;
+            if(e.key === 'ArrowUp') upPressed = true;
+            if(e.key === 'ArrowDown') downPressed = true;
+        });
+
+        document.addEventListener('keyup', function(e) {
+            if(e.key === 'w' || e.key === 'W') wPressed = false;
+            if(e.key === 's' || e.key === 'S') sPressed = false;
+            if(e.key === 'ArrowUp') upPressed = false;
+            if(e.key === 'ArrowDown') downPressed = false;
+        });
+
+        function update() {
+            // Move paddles
+            if(wPressed && p1Y > 0) p1Y -= paddleSpeed;
+            if(sPressed && p1Y < canvas.height - paddleHeight) p1Y += paddleSpeed;
+            if(upPressed && p2Y > 0) p2Y -= paddleSpeed;
+            if(downPressed && p2Y < canvas.height - paddleHeight) p2Y += paddleSpeed;
+
+            // Move ball
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Top and bottom walls
+            if (ballY - ballRadius < 0 || ballY + ballRadius > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Paddle collision P1 (Left)
+            if (ballX - ballRadius < paddleWidth) {
+                if (ballY > p1Y && ballY < p1Y + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                    ballX = paddleWidth + ballRadius; // Prevents getting stuck inside paddle
+                } else if (ballX < 0) {
+                    p2Score++; resetBall();
+                }
+            }
+            
+            // Paddle collision P2 (Right)
+            if (ballX + ballRadius > canvas.width - paddleWidth) {
+                if (ballY > p2Y && ballY < p2Y + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                    ballX = canvas.width - paddleWidth - ballRadius; // Prevents getting stuck
+                } else if (ballX > canvas.width) {
+                    p1Score++; resetBall();
+                }
+            }
+        }
+
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX; // Sends ball to the person who just scored
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw center net line
+            for(let i = 0; i < canvas.height; i += 40) {
+                ctx.fillStyle = "lime";
+                ctx.fillRect(canvas.width / 2 - 1, i, 2, 20);
+            }
+
+            // Draw paddles and ball
+            ctx.fillRect(0, p1Y, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, p2Y, paddleWidth, paddleHeight);
+            
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw Score
+            ctx.font = "30px Courier New";
+            ctx.fillText(p1Score, 200, 50);
+            ctx.fillText(p2Score, 600, 50);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
