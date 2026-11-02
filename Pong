@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hackable Pong</title>
+    <style>
+        body { background: black; text-align: center; color: lime; font-family: "Courier New", Courier, monospace; }
+        canvas { background: black; border: 2px solid lime; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Classic Pong (Press F12 to Hack)</h1>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("pongCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // --- STUDENTS CAN MODIFY THESE VARIABLES IN THE F12 CONSOLE ---
+        var paddleHeight = 80;
+        var paddleWidth = 10;
+        var ballRadius = 8;
+        var ballSpeedX = 5;
+        var ballSpeedY = 5;
+        
+        var playerY = (canvas.height - paddleHeight) / 2;
+        var aiY = (canvas.height - paddleHeight) / 2;
+        var ballX = canvas.width / 2;
+        var ballY = canvas.height / 2;
+        var playerScore = 0;
+        var aiScore = 0;
+
+        // Mouse control
+        canvas.addEventListener('mousemove', function(e) {
+            let rect = canvas.getBoundingClientRect();
+            playerY = e.clientY - rect.top - paddleHeight / 2;
+        });
+
+        function update() {
+            // Move ball
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Simple AI
+            if (aiY + paddleHeight / 2 < ballY) {
+                aiY += 4;
+            } else {
+                aiY -= 4;
+            }
+
+            // Top and bottom walls
+            if (ballY - ballRadius < 0 || ballY + ballRadius > canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Paddle collision
+            if (ballX - ballRadius < paddleWidth) {
+                if (ballY > playerY && ballY < playerY + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                } else if (ballX < 0) {
+                    aiScore++; resetBall();
+                }
+            }
+            if (ballX + ballRadius > canvas.width - paddleWidth) {
+                if (ballY > aiY && ballY < aiY + paddleHeight) {
+                    ballSpeedX = -ballSpeedX;
+                } else if (ballX > canvas.width) {
+                    playerScore++; resetBall();
+                }
+            }
+        }
+
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw paddles and ball
+            ctx.fillStyle = "lime";
+            ctx.fillRect(0, playerY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight);
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw Score
+            ctx.font = "30px Courier New";
+            ctx.fillText(playerScore, 200, 50);
+            ctx.fillText(aiScore, 600, 50);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
