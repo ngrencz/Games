@@ -138,12 +138,22 @@
                 }
 
                 // Scoring
-                if (ballX < 0) {
+               if (ballX < 0) {
                     p2Score++;
-                    resetBall(2); // P2 scored, so P1 serves next
+                    if (p2Score >= 11) {
+                        alert("Player 2 Wins!");
+                        p1Score = 0;
+                        p2Score = 0;
+                    }
+                    resetBall(2); 
                 } else if (ballX > canvas.width) {
                     p1Score++;
-                    resetBall(1); // P1 scored, so P2 serves next
+                    if (p1Score >= 11) {
+                        alert("Player 1 Wins!");
+                        p1Score = 0;
+                        p2Score = 0;
+                    }
+                    resetBall(1); 
                 }
             }
         }
