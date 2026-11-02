@@ -1,103 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Hackable Pong</title>
+    <meta charset="UTF-8">
+    <title>Dynamic 2-Player Pong</title>
     <style>
-        body { background: black; text-align: center; color: lime; font-family: "Courier New", Courier, monospace; }
-        canvas { background: black; border: 2px solid lime; margin-top: 20px; }
+        body { background-color: #111; color: #0f0; font-family: "Courier New", monospace; text-align: center; margin-top: 20px; }
+        /* Added a green glow to simulate 1970s CRT monitors */
+        canvas { background-color: #000; border: 4px solid #0f0; box-shadow: 0 0 20px #0f0; }
+        h1 { margin-bottom: 5px; }
+        p { font-size: 1.2em; margin-top: 0; }
     </style>
 </head>
 <body>
-    <h1>Classic Pong (Press F12 to Hack)</h1>
-    <canvas id="pongCanvas" width="800" height="400"></canvas>
-    
+    <h1>RETRO PONG: VERSUS MODE</h1>
+    <p>Player 1: W & S | Player 2: UP & DOWN Arrows</p>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+
     <script>
-        const canvas = document.getElementById("pongCanvas");
+        const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // --- STUDENTS CAN MODIFY THESE VARIABLES IN THE F12 CONSOLE ---
-        var paddleHeight = 80;
-        var paddleWidth = 10;
-        var ballRadius = 8;
-        var ballSpeedX = 5;
-        var ballSpeedY = 5;
+        // --- STUDENTS CAN STILL HACK THESE IN F12 CONSOLE ---
+        var paddleWidth = 12;
+        var paddleHeight = 100;
+        var paddleSpeed = 8;
+        var initialBallSpeed = 6;
+        var ballSpeedMultiplier = 1.05; // Speeds up 5% on every paddle hit
         
-        var playerY = (canvas.height - paddleHeight) / 2;
-        var aiY = (canvas.height - paddleHeight) / 2;
+        // Game State
         var ballX = canvas.width / 2;
         var ballY = canvas.height / 2;
-        var playerScore = 0;
-        var aiScore = 0;
+        var ballSpeedX = initialBallSpeed;
+        var ballSpeedY = 4;
+        var ballRadius = 8;
 
-        // Mouse control
-        canvas.addEventListener('mousemove', function(e) {
-            let rect = canvas.getBoundingClientRect();
-            playerY = e.clientY - rect.top - paddleHeight / 2;
-        });
+        var p1Y = canvas.height / 2 - paddleHeight / 2;
+        var p2Y = canvas.height / 2 - paddleHeight / 2;
+        
+        var p1Score = 0;
+        var p2Score = 0;
+
+        // Smooth Keyboard input tracking
+        var keys = {};
+        window.addEventListener('keydown', function(e) { keys[e.key] = true; });
+        window.addEventListener('keyup', function(e) { keys[e.key] = false; });
+
+        function resetBall(scorer) {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            // Serve towards the player who just scored
+            ballSpeedX = scorer === 1 ? initialBallSpeed : -initialBallSpeed;
+            // Randomize the Y angle so the serve is unpredictable
+            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 4 + 2); 
+        }
 
         function update() {
-            // Move ball
+            // Smooth Paddle Movement
+            if ((keys['w'] || keys['W']) && p1Y > 0) p1Y -= paddleSpeed;
+            if ((keys['s'] || keys['S']) && p1Y < canvas.height - paddleHeight) p1Y += paddleSpeed;
+            if (keys['ArrowUp'] && p2Y > 0) p2Y -= paddleSpeed;
+            if (keys['ArrowDown'] && p2Y < canvas.height - paddleHeight) p2Y += paddleSpeed;
+
+            // Move Ball
             ballX += ballSpeedX;
             ballY += ballSpeedY;
 
-            // Simple AI
-            if (aiY + paddleHeight / 2 < ballY) {
-                aiY += 4;
-            } else {
-                aiY -= 4;
-            }
-
-            // Top and bottom walls
-            if (ballY - ballRadius < 0 || ballY + ballRadius > canvas.height) {
+            // Wall Collisions (Top & Bottom)
+            if (ballY - ballRadius < 0) {
+                ballY = ballRadius;
+                ballSpeedY = -ballSpeedY;
+            } else if (ballY + ballRadius > canvas.height) {
+                ballY = canvas.height - ballRadius;
                 ballSpeedY = -ballSpeedY;
             }
 
-            // Paddle collision
-            if (ballX - ballRadius < paddleWidth) {
-                if (ballY > playerY && ballY < playerY + paddleHeight) {
-                    ballSpeedX = -ballSpeedX;
-                } else if (ballX < 0) {
-                    aiScore++; resetBall();
-                }
+            // DYNAMIC Left Paddle Collision (Player 1)
+            if (ballX - ballRadius < paddleWidth && ballY > p1Y && ballY < p1Y + paddleHeight && ballSpeedX < 0) {
+                ballSpeedX = -ballSpeedX * ballSpeedMultiplier; // Reverse and speed up
+                let deltaY = ballY - (p1Y + paddleHeight / 2);
+                ballSpeedY = deltaY * 0.20; // Calculates angle based on where it hit the paddle
             }
-            if (ballX + ballRadius > canvas.width - paddleWidth) {
-                if (ballY > aiY && ballY < aiY + paddleHeight) {
-                    ballSpeedX = -ballSpeedX;
-                } else if (ballX > canvas.width) {
-                    playerScore++; resetBall();
-                }
+            
+            // DYNAMIC Right Paddle Collision (Player 2)
+            if (ballX + ballRadius > canvas.width - paddleWidth && ballY > p2Y && ballY < p2Y + paddleHeight && ballSpeedX > 0) {
+                ballSpeedX = -ballSpeedX * ballSpeedMultiplier; // Reverse and speed up
+                let deltaY = ballY - (p2Y + paddleHeight / 2);
+                ballSpeedY = deltaY * 0.20; // Calculates angle based on where it hit the paddle
             }
-        }
 
-        function resetBall() {
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-            ballSpeedX = -ballSpeedX;
+            // Scoring
+            if (ballX < 0) {
+                p2Score++;
+                resetBall(2);
+            } else if (ballX > canvas.width) {
+                p1Score++;
+                resetBall(1);
+            }
         }
 
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw paddles and ball
-            ctx.fillStyle = "lime";
-            ctx.fillRect(0, playerY, paddleWidth, paddleHeight);
-            ctx.fillRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight);
+            // Clear screen
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw dashed net
+            ctx.fillStyle = "#0f0";
+            for (let i = 0; i < canvas.height; i += 40) {
+                ctx.fillRect(canvas.width / 2 - 2, i, 4, 20);
+            }
+
+            // Draw Paddles
+            ctx.fillRect(0, p1Y, paddleWidth, paddleHeight); // P1
+            ctx.fillRect(canvas.width - paddleWidth, p2Y, paddleWidth, paddleHeight); // P2
+
+            // Draw Ball
             ctx.beginPath();
             ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
             ctx.fill();
 
-            // Draw Score
-            ctx.font = "30px Courier New";
-            ctx.fillText(playerScore, 200, 50);
-            ctx.fillText(aiScore, 600, 50);
+            // Draw Scores
+            ctx.font = "48px Courier New";
+            ctx.fillText(p1Score, canvas.width / 4, 60);
+            ctx.fillText(p2Score, 3 * canvas.width / 4, 60);
         }
 
-        function loop() {
+        function gameLoop() {
             update();
             draw();
-            requestAnimationFrame(loop);
+            requestAnimationFrame(gameLoop);
         }
-        loop();
+
+        // Start the game
+        resetBall(1);
+        gameLoop();
     </script>
 </body>
 </html>
