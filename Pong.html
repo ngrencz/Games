@@ -19,7 +19,7 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // Force the browser to focus on the game canvas so controls work immediately
+        // Force browser to focus on the game canvas so controls work immediately
         canvas.focus();
 
         // --- STUDENTS CAN STILL HACK THESE IN F12 CONSOLE ---
@@ -33,7 +33,7 @@
         var ballX = canvas.width / 2;
         var ballY = canvas.height / 2;
         var ballSpeedX = initialBallSpeed;
-        var ballSpeedY = 2;
+        var ballSpeedY = 0;
         var ballRadius = 8;
 
         var p1Y = canvas.height / 2 - paddleHeight / 2;
@@ -47,10 +47,9 @@
         var keys = {};
         
         window.addEventListener('keydown', function(e) { 
-            // List of all keys the game uses
             const gameKeys = ['KeyW', 'KeyS', 'ArrowUp', 'ArrowDown', 'Space'];
             
-            // If the key pressed is a game key, stop the browser from searching or scrolling!
+            // Stop the browser from searching or scrolling when pressing game keys
             if (gameKeys.includes(e.code)) {
                 e.preventDefault(); 
             }
@@ -67,23 +66,49 @@
         });
 
         function resetBall(scorer) {
-            ballX = canvas.width / 2;
-            ballY = canvas.height / 2;
-            ballSpeedX = scorer === 1 ? initialBallSpeed : -initialBallSpeed;
-            ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 2 + 1); 
+            // 0 = First serve of the game (randomly picks a paddle)
+            if (scorer === 0) {
+                ballSpeedX = Math.random() > 0.5 ? initialBallSpeed : -initialBallSpeed;
+            } 
+            // P1 Scored. Serve goes to P2 (the loser of the point)
+            else if (scorer === 1) {
+                ballSpeedX = -initialBallSpeed; 
+            } 
+            // P2 Scored. Serve goes to P1 (the loser of the point)
+            else if (scorer === 2) {
+                ballSpeedX = initialBallSpeed; 
+            }
+            
+            // Serve perfectly flat so it's impossible to miss the launch
+            ballSpeedY = 0; 
             isPlaying = false; 
         }
 
         function update() {
+            // Paddle Movement
             if (keys['KeyW'] && p1Y > 0) p1Y -= paddleSpeed;
             if (keys['KeyS'] && p1Y < canvas.height - paddleHeight) p1Y += paddleSpeed;
             if (keys['ArrowUp'] && p2Y > 0) p2Y -= paddleSpeed;
             if (keys['ArrowDown'] && p2Y < canvas.height - paddleHeight) p2Y += paddleSpeed;
 
-            if (isPlaying) {
+            // If paused, PIN the ball to the serving paddle so they can aim!
+            if (!isPlaying) {
+                if (ballSpeedX > 0) {
+                    // P1's Serve (Left side)
+                    ballX = paddleWidth + ballRadius + 2;
+                    ballY = p1Y + (paddleHeight / 2);
+                } else {
+                    // P2's Serve (Right side)
+                    ballX = canvas.width - paddleWidth - ballRadius - 2;
+                    ballY = p2Y + (paddleHeight / 2);
+                }
+            } 
+            // If playing, release the ball and track physics
+            else {
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
 
+                // Wall Collisions
                 if (ballY - ballRadius < 0) {
                     ballY = ballRadius;
                     ballSpeedY = -ballSpeedY;
@@ -92,51 +117,64 @@
                     ballSpeedY = -ballSpeedY;
                 }
 
+                // P1 Left Paddle Collision
                 if (ballX - ballRadius < paddleWidth && ballY > p1Y && ballY < p1Y + paddleHeight && ballSpeedX < 0) {
                     let newSpeed = Math.abs(ballSpeedX) * ballSpeedMultiplier;
                     ballSpeedX = Math.min(newSpeed, maxBallSpeed); 
+                    
+                    // Dynamic angle based on where it hit the paddle
                     let deltaY = ballY - (p1Y + paddleHeight / 2);
                     ballSpeedY = deltaY * 0.12; 
                 }
                 
+                // P2 Right Paddle Collision
                 if (ballX + ballRadius > canvas.width - paddleWidth && ballY > p2Y && ballY < p2Y + paddleHeight && ballSpeedX > 0) {
                     let newSpeed = Math.abs(ballSpeedX) * ballSpeedMultiplier;
                     ballSpeedX = -Math.min(newSpeed, maxBallSpeed); 
+                    
+                    // Dynamic angle based on where it hit the paddle
                     let deltaY = ballY - (p2Y + paddleHeight / 2);
                     ballSpeedY = deltaY * 0.12; 
                 }
 
+                // Scoring
                 if (ballX < 0) {
                     p2Score++;
-                    resetBall(2);
+                    resetBall(2); // P2 scored, so P1 serves next
                 } else if (ballX > canvas.width) {
                     p1Score++;
-                    resetBall(1);
+                    resetBall(1); // P1 scored, so P2 serves next
                 }
             }
         }
 
         function draw() {
+            // Draw Black Background
             ctx.fillStyle = "#000";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            // Draw Dashed Net
             ctx.fillStyle = "#0f0";
             for (let i = 0; i < canvas.height; i += 40) {
                 ctx.fillRect(canvas.width / 2 - 2, i, 4, 20);
             }
 
+            // Draw Paddles
             ctx.fillRect(0, p1Y, paddleWidth, paddleHeight); 
             ctx.fillRect(canvas.width - paddleWidth, p2Y, paddleWidth, paddleHeight); 
 
+            // Draw Ball
             ctx.beginPath();
             ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
             ctx.fill();
 
+            // Draw Scores
             ctx.font = "48px Courier New";
             ctx.textAlign = "center";
             ctx.fillText(p1Score, canvas.width / 4, 60);
             ctx.fillText(p2Score, 3 * canvas.width / 4, 60);
 
+            // Draw Prompt
             if (!isPlaying) {
                 ctx.font = "24px Courier New";
                 ctx.fillText("PRESS SPACE TO SERVE", canvas.width / 2, canvas.height / 2 - 40);
@@ -149,7 +187,8 @@
             requestAnimationFrame(gameLoop);
         }
 
-        resetBall(1);
+        // Initialize first serve
+        resetBall(0);
         gameLoop();
     </script>
 </body>
