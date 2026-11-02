@@ -5,7 +5,7 @@
     <title>Dynamic 2-Player Pong</title>
     <style>
         body { background-color: #111; color: #0f0; font-family: "Courier New", monospace; text-align: center; margin-top: 20px; }
-        canvas { background-color: #000; border: 4px solid #0f0; box-shadow: 0 0 20px #0f0; }
+        canvas { background-color: #000; border: 4px solid #0f0; box-shadow: 0 0 20px #0f0; outline: none; }
         h1 { margin-bottom: 5px; }
         p { font-size: 1.2em; margin-top: 0; }
     </style>
@@ -13,21 +13,23 @@
 <body>
     <h1>RETRO PONG: VERSUS MODE</h1>
     <p>P1: W/S | P2: UP/DOWN | Press SPACE to Serve</p>
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <canvas id="gameCanvas" width="800" height="500" tabindex="1"></canvas>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
+        // Force the browser to focus on the game canvas so controls work immediately
+        canvas.focus();
+
         // --- STUDENTS CAN STILL HACK THESE IN F12 CONSOLE ---
         var paddleWidth = 12;
         var paddleHeight = 100;
         var paddleSpeed = 6;
-        var initialBallSpeed = 4;        // Slower base speed
-        var maxBallSpeed = 9;            // Hard speed limit to prevent "light speed"
-        var ballSpeedMultiplier = 1.03;  // Slower acceleration per hit
+        var initialBallSpeed = 4;
+        var maxBallSpeed = 9;
+        var ballSpeedMultiplier = 1.03;
         
-        // Game State
         var ballX = canvas.width / 2;
         var ballY = canvas.height / 2;
         var ballSpeedX = initialBallSpeed;
@@ -39,31 +41,42 @@
         
         var p1Score = 0;
         var p2Score = 0;
-        
         var isPlaying = false; 
 
-        // Smooth Keyboard input tracking
+        // Hardware-agnostic input tracking
         var keys = {};
+        
         window.addEventListener('keydown', function(e) { 
-            keys[e.key] = true; 
+            // List of all keys the game uses
+            const gameKeys = ['KeyW', 'KeyS', 'ArrowUp', 'ArrowDown', 'Space'];
+            
+            // If the key pressed is a game key, stop the browser from searching or scrolling!
+            if (gameKeys.includes(e.code)) {
+                e.preventDefault(); 
+            }
+            
+            keys[e.code] = true; 
+            
             if (e.code === 'Space' && !isPlaying) {
                 isPlaying = true; 
             }
         });
-        window.addEventListener('keyup', function(e) { keys[e.key] = false; });
+        
+        window.addEventListener('keyup', function(e) { 
+            keys[e.code] = false; 
+        });
 
         function resetBall(scorer) {
             ballX = canvas.width / 2;
             ballY = canvas.height / 2;
             ballSpeedX = scorer === 1 ? initialBallSpeed : -initialBallSpeed;
-            // Gentler randomized Y serve speed
             ballSpeedY = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 2 + 1); 
             isPlaying = false; 
         }
 
         function update() {
-            if ((keys['w'] || keys['W']) && p1Y > 0) p1Y -= paddleSpeed;
-            if ((keys['s'] || keys['S']) && p1Y < canvas.height - paddleHeight) p1Y += paddleSpeed;
+            if (keys['KeyW'] && p1Y > 0) p1Y -= paddleSpeed;
+            if (keys['KeyS'] && p1Y < canvas.height - paddleHeight) p1Y += paddleSpeed;
             if (keys['ArrowUp'] && p2Y > 0) p2Y -= paddleSpeed;
             if (keys['ArrowDown'] && p2Y < canvas.height - paddleHeight) p2Y += paddleSpeed;
 
@@ -71,7 +84,6 @@
                 ballX += ballSpeedX;
                 ballY += ballSpeedY;
 
-                // Wall Collisions
                 if (ballY - ballRadius < 0) {
                     ballY = ballRadius;
                     ballSpeedY = -ballSpeedY;
@@ -80,26 +92,20 @@
                     ballSpeedY = -ballSpeedY;
                 }
 
-                // P1 Left Paddle Collision
                 if (ballX - ballRadius < paddleWidth && ballY > p1Y && ballY < p1Y + paddleHeight && ballSpeedX < 0) {
-                    // Apply multiplier but cap it at maxBallSpeed
                     let newSpeed = Math.abs(ballSpeedX) * ballSpeedMultiplier;
                     ballSpeedX = Math.min(newSpeed, maxBallSpeed); 
-                    
                     let deltaY = ballY - (p1Y + paddleHeight / 2);
-                    ballSpeedY = deltaY * 0.12; // Flatter, more realistic bounce angles
+                    ballSpeedY = deltaY * 0.12; 
                 }
                 
-                // P2 Right Paddle Collision
                 if (ballX + ballRadius > canvas.width - paddleWidth && ballY > p2Y && ballY < p2Y + paddleHeight && ballSpeedX > 0) {
                     let newSpeed = Math.abs(ballSpeedX) * ballSpeedMultiplier;
                     ballSpeedX = -Math.min(newSpeed, maxBallSpeed); 
-                    
                     let deltaY = ballY - (p2Y + paddleHeight / 2);
                     ballSpeedY = deltaY * 0.12; 
                 }
 
-                // Scoring
                 if (ballX < 0) {
                     p2Score++;
                     resetBall(2);
