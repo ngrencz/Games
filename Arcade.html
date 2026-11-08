@@ -153,58 +153,138 @@
         const games = [
             {
                 id: 'pong', title: 'PONG', year: '1972',
-                controls: ['Left paddle moves with the mouse.'],
+                controls: [
+                    'Click the game area to focus.',
+                    'Left paddle moves with the mouse.'
+                ],
                 url: 'https://archive.org/details/g4pong#',
                 colors: { accent: 'yellow', marquee: 'bg-yellow-600', mtext: 'text-white', border: 'border-yellow-400', glow: 'rgba(250,204,21,0.5)' }
             },
             {
                 id: 'asteroids', title: 'ASTEROIDS', year: '1975',
-                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right to Rotate', 'Up for Thrust', 'Space to Fire', 'Shift for Hyperspace'],
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press 5 to insert a coin.',
+                    'Press 1 for 1-Player Start.',
+                    'Arrow keys to rotate/thrust, Space to shoot.'
+                ],
                 url: 'https://archive.org/details/asteroids_20220404',
-                colors: { accent: 'blue', marquee: 'bg-blue-800', mtext: 'text-white', border: 'border-blue-400', glow: 'rgba(96,165,250,0.5)' }
+                colors: { accent: 'cyan', marquee: 'bg-cyan-700', mtext: 'text-white', border: 'border-cyan-400', glow: 'rgba(34,211,238,0.5)' }
             },
             {
                 id: 'breakout', title: 'BREAKOUT', year: '1976',
-                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Serve ball'],
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press 5 to insert coin.',
+                    'Press 1 to start.',
+                    'Arrow keys (or mouse) to move the paddle.'
+                ],
                 url: 'https://archive.org/details/breakout_202204',
-                colors: { accent: 'orange', marquee: 'bg-orange-600', mtext: 'text-white', border: 'border-orange-400', glow: 'rgba(251,146,60,0.5)' }
+                colors: { accent: 'pink', marquee: 'bg-pink-600', mtext: 'text-white', border: 'border-pink-400', glow: 'rgba(244,114,182,0.5)' }
             },
             {
                 id: 'invaders', title: 'SPACE INVADERS', year: '1978',
-                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Fire'],
+                controls: [
+                    'Click the game area to start (Flash port).',
+                    'Left/Right Arrow keys to move.',
+                    'Spacebar to shoot.'
+                ],
                 url: 'https://archive.org/details/space_invaders_flash',
                 colors: { accent: 'green', marquee: 'bg-green-700', mtext: 'text-white', border: 'border-green-400', glow: 'rgba(74,222,128,0.5)' }
             },
             {
                 id: 'galaxian', title: 'GALAXIAN', year: '1979',
-                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Fire'],
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press 5 to insert coin.',
+                    'Press 1 to start.',
+                    'Left/Right Arrows to move, Space to shoot.'
+                ],
                 url: 'https://archive.org/details/galaxian_mame#',
-                colors: { accent: 'cyan', marquee: 'bg-cyan-700', mtext: 'text-white', border: 'border-cyan-300', glow: 'rgba(103,232,249,0.5)' }
-            },
-            {
-                id: 'speedrace', title: 'SUPER SPEED RACE', year: '1979',
-                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Steer', 'Up Arrow to Accelerate'],
-                url: 'https://archive.org/details/arcade_sspeedr',
                 colors: { accent: 'red', marquee: 'bg-red-700', mtext: 'text-white', border: 'border-red-400', glow: 'rgba(248,113,113,0.5)' }
             },
             {
-                id: 'ultima', title: 'ULTIMA', year: '1981',
-                controls: ['Arrow keys to Move', 'A to Attack', 'C to Cast', 'E to Enter', 'Q to Quit/Save'],
+                id: 'speedrace', title: 'SUPER SPEED RACE', year: '1979',
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press 5 to insert a coin.',
+                    'Press 1 to start.',
+                    'Arrow keys to steer and accelerate.'
+                ],
+                url: 'https://archive.org/details/arcade_sspeedr',
+                colors: { accent: 'blue', marquee: 'bg-blue-700', mtext: 'text-white', border: 'border-blue-400', glow: 'rgba(96,165,250,0.5)' }
+            },
+            {
+                id: 'pacman', title: 'PAC-MAN', year: '1982',
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press "F1" to start.',
+                    'Use numpad Arrow keys to move Pac-Man.'
+                ],
+                url: 'https://archive.org/details/Pac-Man_1982_Atari_US_atr',
+                colors: { accent: 'yellow', marquee: 'bg-yellow-400', mtext: 'text-black', border: 'border-yellow-400', glow: 'rgba(253,224,71,0.5)' }
+            },
+            {
+                id: 'ultima', title: 'ULTIMA I', year: '1981',
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Press Spacebar to bypass the title screen.',
+                    'Arrow keys to move. Letters (A=Attack, C=Cast) for actions.'
+                ],
                 url: 'https://archive.org/details/Ultima_I_1981_California_Pacific_Computer',
-                colors: { accent: 'purple', marquee: 'bg-purple-800', mtext: 'text-white', border: 'border-purple-400', glow: 'rgba(192,132,252,0.5)' }
+                colors: { accent: 'gray', marquee: 'bg-gray-300', mtext: 'text-black', border: 'border-gray-100', glow: 'rgba(255,255,255,0.5)' },
+                type: 'pc'
             },
             {
                 id: 'zork', title: 'ZORK', year: '1982',
-                controls: ['Type text commands (e.g. "go north", "take lamp", "open door") and press Enter.'],
+                controls: [
+                    'Click the blue Power button to boot.',
+                    'Wait for the command prompt (>) to appear.',
+                    'Type actions (e.g., "open mailbox", "go north") and press Enter.'
+                ],
                 url: 'https://archive.org/details/zork-trilogy',
-                colors: { accent: 'emerald', marquee: 'bg-emerald-900', mtext: 'text-green-300', border: 'border-emerald-500', glow: 'rgba(52,211,153,0.5)' }
+                colors: { accent: 'emerald', marquee: 'bg-emerald-900', mtext: 'text-green-300', border: 'border-emerald-500', glow: 'rgba(52,211,153,0.5)' },
+                type: 'pc'
             }
         ];
 
         // Generate the CSS Arcade Cabinets dynamically
         function renderCabinets() {
             const gallery = document.getElementById('arcade-gallery');
-            const html = games.map(game => `
+            const html = games.map(game => {
+                if (game.type === 'pc') {
+                    return `
+                <div class="flex flex-col items-center cursor-pointer group transform transition-transform duration-300 hover:-translate-y-3 hover:scale-105 mt-6" onclick="openModal('${game.id}')">
+                    <!-- Monitor -->
+                    <div class="w-48 bg-[#d1d5db] border-x-4 border-t-4 border-[#9ca3af] rounded-t-xl p-4 pb-2 relative z-20 shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:shadow-[0_0_20px_${game.colors.glow}] transition-all">
+                        <div class="w-full h-32 bg-black border-[8px] border-[#6b7280] rounded-[1rem] relative overflow-hidden flex items-center justify-center group-hover:border-${game.colors.accent}-400 transition-colors">
+                            <div class="absolute inset-0 scanlines z-10 opacity-75"></div>
+                            <div class="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_100%)]"></div>
+                            <span class="font-arcade text-${game.colors.accent}-400 text-[10px] text-center px-1 animate-pulse z-0 drop-shadow-[0_0_5px_currentColor]">${game.title}</span>
+                        </div>
+                        <!-- Floppy Drive slot on monitor base -->
+                        <div class="flex justify-end w-full mt-2 pr-1">
+                            <div class="w-10 h-1.5 bg-black rounded-full shadow-inner flex items-center pl-1"><div class="w-1.5 h-0.5 bg-red-500 rounded-full animate-pulse"></div></div>
+                        </div>
+                    </div>
+                    <!-- Computer Case / Keyboard (Slanted) -->
+                    <div class="w-56 h-16 bg-[#e5e7eb] border-y-4 border-x-[10px] border-[#9ca3af] control-panel-slant flex justify-center items-start pt-2 relative z-30 group-hover:shadow-[0_15px_30px_${game.colors.glow}] shadow-2xl rounded-b-md">
+                        <!-- Keyboard Grid -->
+                        <div class="w-44 h-8 bg-[#9ca3af] border-t-2 border-gray-400 rounded flex flex-col justify-between p-0.5 shadow-inner opacity-80 group-hover:opacity-100 transition-opacity">
+                            <div class="w-full h-[3px] bg-[#6b7280] mb-0.5 rounded-sm" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, #4b5563 4px, #4b5563 5px);"></div>
+                            <div class="w-[95%] h-[3px] mx-auto bg-[#6b7280] mb-0.5 rounded-sm" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, #4b5563 4px, #4b5563 5px);"></div>
+                            <div class="w-[85%] h-[3px] mx-auto bg-[#6b7280] mb-0.5 rounded-sm" style="background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, #4b5563 4px, #4b5563 5px);"></div>
+                            <div class="w-1/2 h-[4px] mx-auto bg-[#4b5563] rounded-sm mt-0.5 shadow-sm"></div> <!-- Spacebar -->
+                        </div>
+                    </div>
+                    <!-- CPU Base Block -->
+                    <div class="w-48 h-6 bg-[#d1d5db] border-x-[10px] border-b-[6px] border-[#9ca3af] rounded-b-xl shadow-2xl z-10 flex justify-center relative">
+                        <div class="w-full h-2 bg-black/10 absolute top-0"></div>
+                    </div>
+                </div>
+                    `;
+                } else {
+                    return `
                 <div class="flex flex-col items-center cursor-pointer group transform transition-transform duration-300 hover:-translate-y-3 hover:scale-105" onclick="openModal('${game.id}')">
                     
                     <!-- 1. Marquee (Angled Top) -->
@@ -257,7 +337,9 @@
                     </div>
                     
                 </div>
-            `).join('');
+                    `;
+                }
+            }).join('');
             gallery.innerHTML = html;
         }
 
@@ -274,9 +356,9 @@
             document.getElementById('modalLink').href = game.url;
             
             // Populate Controls List
-            const controlsHtml = game.controls.map(control => 
+            const controlsHtml = game.controls.map((control, index) => 
                 `<li class="flex items-start">
-                    <span class="text-pink-500 mr-2">></span>
+                    <span class="text-pink-500 mr-3 mt-0.5">${index + 1}.</span>
                     <span>${control}</span>
                 </li>`
             ).join('');
