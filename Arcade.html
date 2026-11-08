@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 106 Retro Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050014;
+            color: white;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .font-arcade {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* Ambient Synthwave Grid Background */
+        .outrun-sun {
+            position: fixed;
+            bottom: 30vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50vw;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(180deg, #ffeb3b 0%, #ff9800 40%, #e91e63 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 100px rgba(233, 30, 99, 0.5);
+            z-index: 1;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 50%, transparent 53%, black 53%, black 60%, transparent 60%, transparent 64%, black 64%, black 72%, transparent 72%, transparent 77%, black 77%, black 88%, transparent 88%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 50%, transparent 53%, black 53%, black 60%, transparent 60%, transparent 64%, black 64%, black 72%, transparent 72%, transparent 77%, black 77%, black 88%, transparent 88%);
+        }
+
+        .outrun-grid {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40vh;
+            background: 
+                linear-gradient(transparent 65%, rgba(236, 72, 153, 0.7) 66%, transparent 67%),
+                linear-gradient(90deg, transparent 24%, rgba(6, 182, 212, 0.5) 25%, transparent 26%);
+            background-size: 50px 50px;
+            transform: perspective(600px) rotateX(75deg);
+            transform-origin: bottom center;
+            z-index: 2;
+            animation: gridMove 2s linear infinite;
+        }
+
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 50px; }
+        }
+
+        .neon-title {
+            text-shadow: 0 0 10px #fff, 0 0 20px #e91e63, 0 0 40px #e91e63, 0 0 80px #e91e63;
+        }
+
+        /* Specific CSS Transforms for the 3D Cabinet Geometry */
+        .marquee-slant {
+            transform: perspective(200px) rotateX(-5deg);
+            transform-origin: bottom;
+        }
+
+        .control-panel-slant {
+            transform: perspective(200px) rotateX(25deg);
+            transform-origin: top;
+        }
+
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.25));
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* Modal Glow Animation */
+        .neon-border {
+            animation: borderPulse 2s infinite alternate;
+        }
+        
+        @keyframes borderPulse {
+            from { box-shadow: 0 0 10px #ec4899, inset 0 0 10px #ec4899; }
+            to { box-shadow: 0 0 30px #ec4899, inset 0 0 20px #ec4899; }
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 bg-[#050014] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900 via-[#050014] to-black z-0"></div>
+    <div class="outrun-sun"></div>
+    <div class="outrun-grid border-t-2 border-pink-500 shadow-[0_-20px_40px_rgba(236,72,153,0.5)]"></div>
+
+    <!-- Page Content -->
+    <div class="relative z-10 min-h-screen flex flex-col items-center pt-10 pb-32 px-4">
+        
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="font-arcade text-3xl md:text-5xl lg:text-6xl text-white neon-title mb-4 leading-tight">ROOM 106</h1>
+            <h2 class="font-arcade text-xl md:text-3xl text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]">RETRO ARCADE PORTAL</h2>
+            <p class="font-arcade text-pink-400 text-[10px] md:text-xs mt-8 animate-pulse tracking-widest">SELECT A CABINET TO VIEW CONTROLS</p>
+        </div>
+
+        <!-- Arcade Gallery Container (Populated by JS) -->
+        <div id="arcade-gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-20 max-w-7xl mx-auto w-full items-end justify-items-center">
+            <!-- Cabinets are rendered here -->
+        </div>
+    </div>
+
+    <!-- Control Instructions Modal -->
+    <div id="gameModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md transition-opacity" onclick="closeModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-gray-900 border-4 border-pink-500 neon-border rounded-xl p-8 max-w-xl w-full z-10 flex flex-col shadow-2xl transform transition-transform scale-100">
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-4 right-5 text-gray-500 hover:text-white hover:drop-shadow-[0_0_5px_white] font-arcade text-xl transition-all">&times;</button>
+            
+            <div class="text-center mb-6">
+                <h2 id="modalTitle" class="font-arcade text-2xl text-cyan-400 drop-shadow-[0_0_10px_cyan] mb-2 leading-relaxed">GAME TITLE</h2>
+                <span class="bg-pink-600 text-white font-arcade text-[10px] px-3 py-1 rounded shadow-[0_0_10px_#db2777]">RELEASE: <span id="modalYear">1980</span></span>
+            </div>
+            
+            <!-- CRT Screen Container for Controls -->
+            <div class="w-full bg-black border-[6px] border-gray-700 rounded-lg p-6 mb-8 relative overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,1)]">
+                <div class="absolute inset-0 scanlines opacity-40 z-0"></div>
+                <h3 class="text-white font-arcade text-xs mb-6 text-center border-b-2 border-gray-800 pb-3 relative z-10 text-shadow">HARDWARE CONTROLS</h3>
+                <ul id="modalControls" class="text-green-400 font-mono text-sm md:text-base space-y-3 relative z-10 leading-relaxed">
+                    <!-- Javascript populates list here -->
+                </ul>
+            </div>
+
+            <!-- Start Button -->
+            <a id="modalLink" href="#" target="_blank" class="block w-full text-center bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-arcade text-sm md:text-base py-5 px-6 rounded-lg border-2 border-pink-300 shadow-[0_0_20px_#ec4899] hover:shadow-[0_0_30px_#f472b6] transition-all hover:scale-[1.02] active:scale-[0.98]">
+                PRESS START TO PLAY
+            </a>
+        </div>
+    </div>
+
+    <!-- Interactive Javascript Logic -->
+    <script>
+        // Data payload directly from user requirements
+        const games = [
+            {
+                id: 'pong', title: 'PONG', year: '1972',
+                controls: ['Left paddle moves with the mouse.'],
+                url: 'https://archive.org/details/g4pong#',
+                colors: { accent: 'yellow', marquee: 'bg-yellow-600', mtext: 'text-white', border: 'border-yellow-400', glow: 'rgba(250,204,21,0.5)' }
+            },
+            {
+                id: 'asteroids', title: 'ASTEROIDS', year: '1975',
+                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right to Rotate', 'Up for Thrust', 'Space to Fire', 'Shift for Hyperspace'],
+                url: 'https://archive.org/details/asteroids_20220404',
+                colors: { accent: 'blue', marquee: 'bg-blue-800', mtext: 'text-white', border: 'border-blue-400', glow: 'rgba(96,165,250,0.5)' }
+            },
+            {
+                id: 'breakout', title: 'BREAKOUT', year: '1976',
+                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Serve ball'],
+                url: 'https://archive.org/details/breakout_202204',
+                colors: { accent: 'orange', marquee: 'bg-orange-600', mtext: 'text-white', border: 'border-orange-400', glow: 'rgba(251,146,60,0.5)' }
+            },
+            {
+                id: 'invaders', title: 'SPACE INVADERS', year: '1978',
+                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Fire'],
+                url: 'https://archive.org/details/space_invaders_flash',
+                colors: { accent: 'green', marquee: 'bg-green-700', mtext: 'text-white', border: 'border-green-400', glow: 'rgba(74,222,128,0.5)' }
+            },
+            {
+                id: 'galaxian', title: 'GALAXIAN', year: '1979',
+                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Move', 'Space to Fire'],
+                url: 'https://archive.org/details/galaxian_mame#',
+                colors: { accent: 'cyan', marquee: 'bg-cyan-700', mtext: 'text-white', border: 'border-cyan-300', glow: 'rgba(103,232,249,0.5)' }
+            },
+            {
+                id: 'speedrace', title: 'SUPER SPEED RACE', year: '1979',
+                controls: ['5 to Insert Coin', '1 to Start', 'Left/Right Arrows to Steer', 'Up Arrow to Accelerate'],
+                url: 'https://archive.org/details/arcade_sspeedr',
+                colors: { accent: 'red', marquee: 'bg-red-700', mtext: 'text-white', border: 'border-red-400', glow: 'rgba(248,113,113,0.5)' }
+            },
+            {
+                id: 'ultima', title: 'ULTIMA', year: '1981',
+                controls: ['Arrow keys to Move', 'A to Attack', 'C to Cast', 'E to Enter', 'Q to Quit/Save'],
+                url: 'https://archive.org/details/Ultima_I_1981_California_Pacific_Computer',
+                colors: { accent: 'purple', marquee: 'bg-purple-800', mtext: 'text-white', border: 'border-purple-400', glow: 'rgba(192,132,252,0.5)' }
+            },
+            {
+                id: 'zork', title: 'ZORK', year: '1982',
+                controls: ['Type text commands (e.g. "go north", "take lamp", "open door") and press Enter.'],
+                url: 'https://archive.org/details/zork-trilogy',
+                colors: { accent: 'emerald', marquee: 'bg-emerald-900', mtext: 'text-green-300', border: 'border-emerald-500', glow: 'rgba(52,211,153,0.5)' }
+            }
+        ];
+
+        // Generate the CSS Arcade Cabinets dynamically
+        function renderCabinets() {
+            const gallery = document.getElementById('arcade-gallery');
+            const html = games.map(game => `
+                <div class="flex flex-col items-center cursor-pointer group transform transition-transform duration-300 hover:-translate-y-3 hover:scale-105" onclick="openModal('${game.id}')">
+                    
+                    <!-- 1. Marquee (Angled Top) -->
+                    <div class="w-48 h-16 ${game.colors.marquee} border-4 ${game.colors.border} flex items-center justify-center rounded-t-xl z-20 relative shadow-inner marquee-slant group-hover:shadow-[0_0_20px_${game.colors.glow}] transition-shadow">
+                        <span class="font-arcade ${game.colors.mtext} text-[10px] text-center px-2 drop-shadow-md leading-relaxed">${game.title}</span>
+                    </div>
+                    
+                    <!-- 2. Screen Bezel & CRT Screen -->
+                    <div class="w-56 bg-gray-900 border-x-[10px] border-t-[10px] border-gray-950 p-4 relative z-10 flex justify-center shadow-xl">
+                        <div class="w-44 h-44 bg-black border-8 border-gray-800 rounded-[2rem] relative overflow-hidden group-hover:border-${game.colors.accent}-500 group-hover:shadow-[0_0_30px_${game.colors.glow}] transition-all flex items-center justify-center">
+                            <div class="absolute inset-0 scanlines z-10 opacity-75"></div>
+                            <!-- Screen glow -->
+                            <div class="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_100%)]"></div>
+                            <!-- Neon Text on Screen -->
+                            <span class="font-arcade text-${game.colors.accent}-400 text-[10px] text-center px-1 animate-pulse z-0 drop-shadow-[0_0_5px_currentColor]">${game.title}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. Control Panel (3D Protrusion) -->
+                    <div class="w-64 h-16 bg-gray-800 border-y-[6px] ${game.colors.border} control-panel-slant flex flex-row items-center justify-center gap-6 relative z-30 group-hover:shadow-[0_15px_30px_${game.colors.glow}] transition-shadow shadow-2xl">
+                        <!-- CSS Joystick -->
+                        <div class="relative w-6 h-6 flex justify-center items-end group-hover:-rotate-12 transition-transform">
+                            <div class="w-5 h-5 bg-red-600 rounded-full absolute -top-5 shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.5),_0_5px_5px_rgba(0,0,0,0.8)]"></div>
+                            <div class="w-2 h-6 bg-gradient-to-r from-gray-400 to-gray-500 shadow-md"></div>
+                            <div class="w-8 h-3 bg-black rounded-full absolute -bottom-1 shadow-lg"></div>
+                        </div>
+                        <!-- CSS Buttons -->
+                        <div class="flex gap-2.5">
+                            <div class="w-4 h-4 rounded-full bg-red-500 shadow-[inset_-1px_-1px_3px_rgba(0,0,0,0.6),_0_2px_2px_black] group-hover:bg-red-400"></div>
+                            <div class="w-4 h-4 rounded-full bg-blue-500 shadow-[inset_-1px_-1px_3px_rgba(0,0,0,0.6),_0_2px_2px_black] group-hover:bg-blue-400"></div>
+                            <div class="w-4 h-4 rounded-full bg-yellow-400 shadow-[inset_-1px_-1px_3px_rgba(0,0,0,0.6),_0_2px_2px_black] group-hover:bg-yellow-300"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 4. Lower Body & Coin Door -->
+                    <div class="w-56 h-48 bg-gray-950 border-x-[10px] border-black flex flex-col items-center pt-6 relative z-10 shadow-2xl">
+                        <!-- Metallic Coin Door -->
+                        <div class="w-24 h-[6.5rem] bg-gray-600 border-4 border-gray-400 rounded-sm flex justify-around px-2 pt-3 shadow-[inset_0_5px_15px_rgba(0,0,0,0.8),_0_2px_10px_black] bg-[linear-gradient(90deg,#4b5563_0%,#6b7280_50%,#4b5563_100%)]">
+                            <!-- Coin Slot 1 -->
+                            <div class="w-[22px] h-10 bg-black rounded-sm border-[1.5px] border-gray-800 flex justify-center items-center shadow-inner relative">
+                                <div class="w-[3px] h-5 bg-orange-500 shadow-[0_0_8px_#f97316] animate-pulse"></div>
+                                <div class="absolute -bottom-3 w-4 h-2 bg-gray-800 rounded-sm shadow-inner"></div>
+                            </div>
+                            <!-- Coin Slot 2 -->
+                            <div class="w-[22px] h-10 bg-black rounded-sm border-[1.5px] border-gray-800 flex justify-center items-center shadow-inner relative">
+                                <div class="w-[3px] h-5 bg-orange-500 shadow-[0_0_8px_#f97316] animate-pulse"></div>
+                                <div class="absolute -bottom-3 w-4 h-2 bg-gray-800 rounded-sm shadow-inner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            `).join('');
+            gallery.innerHTML = html;
+        }
+
+        // Modal Logic
+        const modal = document.getElementById('gameModal');
+        
+        function openModal(gameId) {
+            const game = games.find(g => g.id === gameId);
+            if (!game) return;
+            
+            // Populate Data
+            document.getElementById('modalTitle').innerText = game.title;
+            document.getElementById('modalYear').innerText = game.year;
+            document.getElementById('modalLink').href = game.url;
+            
+            // Populate Controls List
+            const controlsHtml = game.controls.map(control => 
+                `<li class="flex items-start">
+                    <span class="text-pink-500 mr-2">></span>
+                    <span>${control}</span>
+                </li>`
+            ).join('');
+            document.getElementById('modalControls').innerHTML = controlsHtml;
+            
+            // Show Modal
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        // Initialize App
+        window.onload = renderCabinets;
+    </script>
+</body>
+</html>
