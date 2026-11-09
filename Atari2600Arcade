@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 106 Friday Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Importing Press Start 2P for headings and VT323 for readable body text -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --bg-color: #050505;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-green);
+            font-family: 'VT323', monospace;
+            font-size: 1.25rem;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .btn-font {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* CRT Scanline Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        /* CRT Screen Flicker */
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            5% { opacity: 0.85; }
+            10% { opacity: 0.95; }
+            15% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        .crt {
+            animation: flicker 0.15s infinite;
+        }
+
+        /* Glowing Text Effects */
+        .glow-green {
+            text-shadow: 0 0 5px var(--neon-green), 0 0 10px var(--neon-green);
+        }
+        .glow-cyan {
+            text-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+        .glow-magenta {
+            text-shadow: 0 0 5px var(--neon-magenta), 0 0 10px var(--neon-magenta);
+            color: var(--neon-magenta);
+        }
+
+        /* Cartridge Styles */
+        .cartridge {
+            width: 280px;
+            height: 350px;
+            background: #1a1a1a;
+            border: 2px solid #0a0a0a;
+            border-radius: 12px 12px 2px 2px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.8), inset 0 3px 5px rgba(255,255,255,0.1);
+            position: relative;
+            padding: 35px 20px 20px 20px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .cartridge:hover {
+            transform: translateY(-8px);
+        }
+        
+        /* Cartridge Ribs (The grip at the top of the plastic shell) */
+        .cartridge::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 15%; right: 15%;
+            height: 25px;
+            background: repeating-linear-gradient(
+                90deg,
+                #0a0a0a,
+                #0a0a0a 8px,
+                #222 8px,
+                #222 16px
+            );
+            border-bottom: 2px solid #000;
+            border-radius: 0 0 6px 6px;
+        }
+        
+        /* Label Sticker */
+        .cartridge-label {
+            background: #eceadd;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            border-radius: 6px;
+            padding: 12px 16px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            color: #222; /* Dark text for readability on the label */
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid #fff;
+            overflow: hidden;
+        }
+        
+        /* Specific Label Accents to mimic colorful Atari art */
+        .label-blue { border-top: 16px solid #2563eb; }
+        .label-green { border-top: 16px solid #16a34a; }
+        .label-red { border-top: 16px solid #dc2626; }
+        .label-yellow { border-top: 16px solid #ca8a04; }
+        .label-purple { border-top: 16px solid #9333ea; }
+        .label-orange { border-top: 16px solid #ea580c; }
+        .label-cyan { border-top: 16px solid #0891b2; }
+
+        /* Play Button on the Cartridge */
+        .btn-cart {
+            background-color: #111;
+            color: #fff;
+            border: 4px solid #000;
+            box-shadow: inset 0 0 0 2px #555;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-cart:hover {
+            background-color: #dc2626;
+            color: #fff;
+            box-shadow: inset 0 0 0 2px #ff8888, 0 0 10px #dc2626;
+        }
+
+        /* Floppy Disk Styles */
+        .floppy-disk {
+            width: 320px;
+            height: 320px;
+            background: #2a2a2a;
+            border: 2px solid #1a1a1a;
+            border-radius: 4px;
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.5), 0 15px 25px rgba(0,0,0,0.8);
+            position: relative;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .floppy-disk:hover {
+            transform: translateY(-8px);
+        }
+
+        .floppy-hub {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #3b2f2f; /* Brown magnetic tape */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #1a1a1a;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            z-index: 5;
+        }
+        
+        .floppy-hub::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fdfdfd; /* Drive spindle ring */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 0 4px rgba(0,0,0,0.5);
+            border: 1px solid #ccc;
+        }
+
+        .floppy-notch {
+            width: 14px;
+            height: 28px;
+            background: var(--bg-color); /* Matches page bg to look like a cutout */
+            position: absolute;
+            right: -2px;
+            top: 60px;
+            border-radius: 4px 0 0 4px;
+            box-shadow: inset 3px 0 5px rgba(0,0,0,0.8);
+            border: 1px solid #1a1a1a;
+            border-right: none;
+        }
+
+        .floppy-read-window {
+            width: 100px;
+            height: 34px;
+            border-radius: 17px;
+            background: #3b2f2f; /* Brown magnetic tape */
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #1a1a1a;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .floppy-label {
+            background: #eceadd;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            width: 85%;
+            height: 105px; /* Stays just above the center hub */
+            margin-top: 10px;
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            color: #222;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.2), 0 2px 4px rgba(0,0,0,0.5);
+            border: 1px solid #fff;
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        /* Scanline overly fix for interactive elements */
+        a, button {
+            position: relative;
+            z-index: 60;
+        }
+    </style>
+</head>
+<body class="crt min-h-screen flex flex-col p-4 md:p-8">
+
+    <!-- Header Section -->
+    <header class="text-center mb-12 mt-6">
+        <h1 class="text-3xl md:text-5xl lg:text-6xl glow-green mb-4 leading-tight">ROOM 106<br>FRIDAY ARCADE</h1>
+        <p class="text-xl md:text-2xl text-green-200 mt-4">POWER ON AND INSERT CARTRIDGE...</p>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full">
+
+        <!-- Section 1: Atari 2600 -->
+        <section class="mb-16">
+            <h2 class="text-xl md:text-3xl glow-cyan mb-8 border-b-4 border-cyan-400 inline-block pb-2">The Atari 2600 Console</h2>
+            
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 justify-items-center px-4 md:px-8">
+                
+                <!-- Adventure -->
+                <div class="cartridge">
+                    <div class="cartridge-label label-blue">
+                        <h3 class="text-xs mb-2 font-bold text-center border-b-2 border-blue-600 pb-2 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Adventure <br><span class="text-[10px] text-gray-700 tracking-widest mt-1 block font-sans">(1980)</span></h3>
+                        <div class="flex-grow text-[18px] leading-snug">
+                            <p class="mb-2"><strong class="text-blue-700">Lesson Connection:</strong> The Warren Robinett Easter Egg.</p>
+                            <p class="mb-1"><strong class="text-black">Challenge:</strong> Find the 'Gray Dot' to access the secret room. Watch out for the bat!</p>
+                        </div>
+                        <a href="https://archive.org/details/atari_2600_adventure_1980_atari_warren_robinett_cx2613_cx2613p" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-2 text-[10px] mt-auto block w-full rounded-sm">
+                            PLAY GAME
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pitfall! -->
+                <div class="cartridge">
+                    <div class="cartridge-label label-green">
+                        <h3 class="text-xs mb-2 font-bold text-center border-b-2 border-green-600 pb-2 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Pitfall! <br><span class="text-[10px] text-gray-700 tracking-widest mt-1 block font-sans">(1982)</span></h3>
+                        <div class="flex-grow text-[18px] leading-snug">
+                            <p class="mb-2"><strong class="text-green-700">Lesson Connection:</strong> The Birth of Activision.</p>
+                            <p class="mb-1"><strong class="text-black">Challenge:</strong> See how an independent programmer pushed the hardware. Survive!</p>
+                        </div>
+                        <a href="https://archive.org/details/atari_2600_pitfall_1982_activision_david_crane_ax-018" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-2 text-[10px] mt-auto block w-full rounded-sm">
+                            PLAY GAME
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Space Invaders -->
+                <div class="cartridge">
+                    <div class="cartridge-label label-red">
+                        <h3 class="text-xs mb-2 font-bold text-center border-b-2 border-red-600 pb-2 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Space Invaders <br><span class="text-[10px] text-gray-700 tracking-widest mt-1 block font-sans">(1980)</span></h3>
+                        <div class="flex-grow text-[18px] leading-snug">
+                            <p class="mb-2"><strong class="text-red-700">Lesson Connection:</strong> The Raster Grid.</p>
+                            <p class="mb-1"><strong class="text-black">Challenge:</strong> Look closely at the aliens to see the exact grid limitation.</p>
+                        </div>
+                        <a href="https://archive.org/details/atari_2600_space_invaders_1980_atari_richard_mauritz_cx2632_cx2632p" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-2 text-[10px] mt-auto block w-full rounded-sm">
+                            PLAY GAME
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Yars' Revenge -->
+                <div class="cartridge">
+                    <div class="cartridge-label label-yellow">
+                        <h3 class="text-xs mb-2 font-bold text-center border-b-2 border-yellow-600 pb-2 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Yars' Revenge <br><span class="text-[10px] text-gray-700 tracking-widest mt-1 block font-sans">(1982)</span></h3>
+                        <div class="flex-grow text-[18px] leading-snug">
+                            <p class="mb-2"><strong class="text-yellow-700">Lesson Connection:</strong> Bestselling original game.</p>
+                            <p class="mb-1"><strong class="text-black">Context:</strong> Uses a trick where explosions are internal code drawn as pixels.</p>
+                        </div>
+                        <a href="https://archive.org/details/atari_2600_yars_revenge_1982_atari_howard_scott_warshaw_cx2655_cx2655p" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-2 text-[10px] mt-auto block w-full rounded-sm">
+                            PLAY GAME
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 2: Microcomputers -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-3xl glow-magenta mb-8 border-b-4 border-fuchsia-500 inline-block pb-2">The Microcomputer Revolution (Up to 1984)</h2>
+            
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-8 justify-items-center px-4 md:px-8">
+                
+                <!-- King's Quest -->
+                <div class="floppy-disk">
+                    <div class="floppy-notch"></div>
+                    <div class="floppy-hub"></div>
+                    <div class="floppy-read-window"></div>
+                    
+                    <div class="floppy-label label-purple">
+                        <h3 class="text-[10px] mb-1 font-bold text-center border-b-2 border-purple-600 pb-1 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">King's Quest <br><span class="text-[8px] text-gray-700 tracking-widest mt-1 block font-sans">(1984)</span></h3>
+                        <div class="flex-grow text-[14px] leading-tight mt-1">
+                            <p class="mb-1"><strong class="text-purple-700">Connection:</strong> Roberta Williams & Sierra On-Line.</p>
+                            <p class="mb-1"><strong class="text-black">Context:</strong> Walk *behind* trees and *in front of* rocks.</p>
+                        </div>
+                    </div>
+                    
+                    <a href="https://archive.org/details/msdos_Kings_Quest_I_-_Quest_for_the_Crown_1984" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-3 text-[10px] absolute bottom-5 right-5 z-20 rounded-sm">
+                        PLAY
+                    </a>
+                </div>
+
+                <!-- Karateka -->
+                <div class="floppy-disk">
+                    <div class="floppy-notch"></div>
+                    <div class="floppy-hub"></div>
+                    <div class="floppy-read-window"></div>
+                    
+                    <div class="floppy-label label-orange">
+                        <h3 class="text-[10px] mb-1 font-bold text-center border-b-2 border-orange-600 pb-1 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Karateka <br><span class="text-[8px] text-gray-700 tracking-widest mt-1 block font-sans">(1984)</span></h3>
+                        <div class="flex-grow text-[14px] leading-tight mt-1">
+                            <p class="mb-1"><strong class="text-orange-700">Connection:</strong> Rotoscoping & animation.</p>
+                            <p class="mb-1"><strong class="text-black">Context:</strong> Notice smooth human animation vs blocky sprites.</p>
+                        </div>
+                    </div>
+                    
+                    <a href="https://archive.org/details/Karateka_1984_Broderbund_Software" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-3 text-[10px] absolute bottom-5 right-5 z-20 rounded-sm">
+                        PLAY
+                    </a>
+                </div>
+
+                <!-- Lode Runner -->
+                <div class="floppy-disk">
+                    <div class="floppy-notch"></div>
+                    <div class="floppy-hub"></div>
+                    <div class="floppy-read-window"></div>
+                    
+                    <div class="floppy-label label-cyan">
+                        <h3 class="text-[10px] mb-1 font-bold text-center border-b-2 border-cyan-600 pb-1 uppercase" style="font-family: 'Press Start 2P', cursive; line-height: 1.4;">Lode Runner <br><span class="text-[8px] text-gray-700 tracking-widest mt-1 block font-sans">(1983)</span></h3>
+                        <div class="flex-grow text-[14px] leading-tight mt-1">
+                            <p class="mb-1"><strong class="text-cyan-700">Connection:</strong> Early level editors.</p>
+                            <p class="mb-1"><strong class="text-black">Context:</strong> One of the first games to allow designing custom puzzles.</p>
+                        </div>
+                    </div>
+                    
+                    <a href="https://archive.org/details/msdos_Lode_Runner_1983" target="_blank" rel="noopener noreferrer" class="btn-cart btn-font text-center py-2 px-3 text-[10px] absolute bottom-5 right-5 z-20 rounded-sm">
+                        PLAY
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-8 mb-4 text-center">
+        <p class="btn-font text-xs text-gray-500 glow-green">DEVELOPED FOR ROOM 106</p>
+    </footer>
+
+</body>
+</html>
