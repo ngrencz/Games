@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 106 Tech Talk: 8-Bit & 16-Bit Hardware Lab</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #eaeaea;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #e94560;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px #000000;
+            margin-bottom: 5px;
+        }
+        p.subtitle {
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #a2a2d0;
+        }
+        .lab-container {
+            display: flex;
+            gap: 30px;
+            max-width: 1200px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .controls-panel {
+            background-color: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 8px;
+            padding: 20px;
+            width: 310px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+        }
+        .controls-panel h2 {
+            margin-top: 0;
+            color: #e94560;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 10px;
+            font-size: 20px;
+        }
+        .key-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .key {
+            background-color: #e94560;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: 0px 4px 0px #8a1c31;
+        }
+        .key-genesis {
+            background-color: #0077b6;
+            box-shadow: 0px 4px 0px #023e8a;
+        }
+        .emulator-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .game-selector {
+            padding: 10px;
+            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            background-color: #0f3460;
+            color: white;
+            border: 2px solid #e94560;
+            border-radius: 5px;
+            width: 100%;
+            cursor: pointer;
+        }
+        .game-selector:focus {
+            outline: none;
+            border-color: #fff;
+        }
+        .iframe-wrapper {
+            border: 4px solid #0f3460;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #000;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.8);
+        }
+        .note {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #a2a2d0;
+            background-color: #0f172a;
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 1.4;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>8-Bit &amp; 16-Bit Hardware Lab</h1>
+    <p class="subtitle">Compare 1985 NES processing with 1990s Sega Genesis hardware</p>
+
+    <div class="lab-container">
+        
+        <!-- Dynamic Cheat Sheet for Chromebooks -->
+        <div class="controls-panel">
+            
+            <!-- NES Controls -->
+            <div id="nesControls">
+                <h2>NES Controls</h2>
+                <div class="key-row"><span>Movement</span> <span class="key">Arrows</span></div>
+                <div class="key-row"><span>A Button</span> <span class="key">L-Alt / X</span></div>
+                <div class="key-row"><span>B Button</span> <span class="key">L-Ctrl / Z</span></div>
+                <div class="key-row"><span>Start</span> <span class="key">1 / Enter</span></div>
+                <div class="key-row"><span>Select</span> <span class="key">5 / Shift</span></div>
+            </div>
+
+            <!-- Sega Genesis Controls -->
+            <div id="genesisControls" class="hidden">
+                <h2 style="color: #48cae4;">Genesis Controls</h2>
+                <div class="key-row"><span>Movement</span> <span class="key key-genesis">Arrows</span></div>
+                <div class="key-row"><span>A Button</span> <span class="key key-genesis">L-Ctrl</span></div>
+                <div class="key-row"><span>B Button</span> <span class="key key-genesis">L-Alt</span></div>
+                <div class="key-row"><span>C Button</span> <span class="key key-genesis">Spacebar</span></div>
+                <div class="key-row"><span>Start</span> <span class="key key-genesis">1</span></div>
+            </div>
+            
+            <!-- Shared Troubleshooting -->
+            <h2 style="margin-top: 30px;">Troubleshooting</h2>
+            <div class="key-row"><span>Pause / Unfreeze</span> <span class="key">P</span></div>
+            <div class="key-row"><span>Reset System</span> <span class="key">F3</span></div>
+            <div class="key-row"><span>Remap Controls</span> <span class="key">TAB</span></div>
+            
+            <div class="note">
+                <strong>Stuck?</strong> Click directly inside the game screen first so your keyboard connects. If the TAB menu doesn't open, check for a <strong>Gamepad Icon</strong> at the bottom of the screen, or refresh the page to reset.
+            </div>
+        </div>
+
+        <!-- Game Selector and Emulator -->
+        <div class="emulator-container">
+            <select id="gameDropdown" class="game-selector" onchange="changeGame()">
+                    <optgroup label="Sega Genesis (16-Bit)">
+                    <option value="https://archive.org/embed/Mega_Games_6_Vol_1_E_h1C" data-system="genesis">Mega Games 6 (Sonic, Golden Axe, Streets of Rage)</option>
+                    <option value="https://archive.org/embed/1800-in-1_p1" data-system="genesis">Bootleg: 1800-in-1 (Genesis Multicart)</option>
+                    <option value="https://archive.org/embed/King_Series_18-in-1_KC1801_p1_" data-system="genesis">Bootleg: King Series 18-in-1</option>
+                </optgroup>
+            </select>
+
+            <div class="iframe-wrapper">
+                <iframe 
+                    id="emulatorFrame"
+                    src="https://archive.org/embed/1200-in-1-j-p-1_202309" 
+                    width="640" 
+                    height="480" 
+                    frameborder="0" 
+                    webkitallowfullscreen="true" 
+                    mozallowfullscreen="true" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript to toggle games and swap the control guide -->
+    <script>
+        function changeGame() {
+            var dropdown = document.getElementById("gameDropdown");
+            var iframe = document.getElementById("emulatorFrame");
+            var selectedOption = dropdown.options[dropdown.selectedIndex];
+            var system = selectedOption.getAttribute("data-system");
+            
+            var nesControls = document.getElementById("nesControls");
+            var genesisControls = document.getElementById("genesisControls");
+
+            // Swap the controls display based on the selected console
+            if (system === "genesis") {
+                nesControls.classList.add("hidden");
+                genesisControls.classList.remove("hidden");
+            } else {
+                genesisControls.classList.add("hidden");
+                nesControls.classList.remove("hidden");
+            }
+
+            // Blur the dropdown so keystrokes go straight to the game
+            dropdown.blur(); 
+            
+            // Update the iframe source
+            iframe.src = dropdown.value;
+        }
+    </script>
+
+</body>
+</html>
