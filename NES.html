@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Talk Arcade - NES</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #2c3e50; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #game-container { 
+            width: 800px; 
+            height: 600px; 
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+    <h2>Room 106 Retro Lab</h2>
+    
+    <!-- This div is where the emulator will inject itself -->
+    <div id="game-container"></div>
+
+    <script>
+        // EmulatorJS Configuration
+        window.EJS_player = '#game-container';
+        window.EJS_core = 'nes'; // Tells the emulator to use the Nintendo core
+        window.EJS_gameName = 'Classroom Game'; // The title on the UI
+        window.EJS_color = '#e74c3c'; // UI theme color (red)
+        window.EJS_startOnLoaded = false; // Prevents audio blasting before they click
+        window.EJS_pathtodata = 'https://cdn.emulatorjs.org/latest/data/'; 
+        
+        // IMPORTANT: The path to your ROM file hosted on your GitHub repo
+        window.EJS_gameUrl = 'roms/your_game.nes'; 
+    </script>
+    
+    <!-- The engine script that runs the whole thing -->
+    <script src="https://cdn.emulatorjs.org/latest/data/loader.js"></script>
+</body>
+</html>
